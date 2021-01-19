@@ -43,6 +43,7 @@ stage TRIM_READS(
     in  int    max_read_num,
     in  map    trim_def,
     in  map    adapters,
+    in  int    num_threads,
     out map[]  chunks,
     out json   bc_counts,
     out json   lot_info,

@@ -29,6 +29,7 @@ stage TRIM_READS(
     in  int    max_read_num,
     in  map    trim_def,
     in  map    adapters,
+    in  int    num_threads,
     out map[]  chunks,
     out json   bc_counts,
     out json   lot_info,
@@ -78,7 +79,7 @@ def identify_gelbead_lot(barcode_hist, lot_to_barcodes, min_frac=0.95, min_count
     return result_lot, result_conf, lot_counts
 
 
-def run_cutadapt_single_end(in_reads_fn, out_reads_fn, trim_info_fn, trim_def, adapters, read_id="R1"):
+def run_cutadapt_single_end(in_reads_fn, out_reads_fn, trim_info_fn, trim_def, adapters, read_id="R1", num_threads=1):
     """Calls cutadapt in single-end mode using the settings in trim_def[read_id]
     """
     filter_output = trim_def["discard_untrimmed"]
@@ -120,6 +121,7 @@ def run_cutadapt_single_end(in_reads_fn, out_reads_fn, trim_info_fn, trim_def, a
         cmd.append("--discard-untrimmed")
 
     cmd.extend(["--info-file", trim_info_fn])
+    cmd.extend(["--cores", str(num_threads)])
     cmd.extend(["-o", out_reads_fn])
     cmd.append(in_reads_fn)
 
@@ -314,16 +316,16 @@ def main(args, outs):
         trimmed_reads = martian.make_path("trimmed_reads.fastq.gz")
         trim_info_fn = martian.make_path("trim_info.txt.gz")
         initial_read_pairs, trimmed_read_pairs = run_cutadapt_single_end(chunk['read1'], trimmed_reads,
-                                                                         trim_info_fn, args.trim_def, args.adapters)
+                                                                         trim_info_fn, args.trim_def, args.adapters, args.num_threads)
     else:
         trimmed_r1 = martian.make_path("trimmed_r1.fastq.gz")
         trimmed_r2 = martian.make_path("trimmed_r2.fastq.gz")
         trim_info_r1_fn = martian.make_path("trim_info_r1.txt.gz")
         trim_info_r2_fn = martian.make_path("trim_info_r2.txt.gz")
         initial1, trimmed1 = run_cutadapt_single_end(chunk['read1'], trimmed_r1,
-                                                     trim_info_r1_fn, args.trim_def, args.adapters, read_id="R1")
+                                                     trim_info_r1_fn, args.trim_def, args.adapters, read_id="R1", num_threads=args.num_threads)
         initial2, trimmed2 = run_cutadapt_single_end(chunk['read2'], trimmed_r2,
-                                                     trim_info_r2_fn, args.trim_def, args.adapters, read_id="R2")
+                                                     trim_info_r2_fn, args.trim_def, args.adapters, read_id="R2", num_threads=args.num_threads)
         initial_read_pairs = initial1 + initial2
         trimmed_read_pairs = trimmed1 + trimmed2
         if initial1 != initial2:

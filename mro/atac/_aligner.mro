@@ -37,6 +37,7 @@ pipeline _ALIGNER(
         trim_def          = self.trim_def,
         adapters          = self.adapters,
         barcode_whitelist = self.barcode_whitelist,
+        num_threads       = 4,
     ) using (
         volatile = true,
     )
