@@ -149,7 +149,7 @@ def run_cutadapt_single_end(in_reads_fn, out_reads_fn, trim_info_fn, trim_def, a
 def split(args):
     """Chunking is handled by a prior stage (SETUP_CHUNKS), so we just have to set them up.
     """
-    chunks = [{'chunk': chunk, "__mem_gb": MEMORY_IN_GB}
+    chunks = [{'chunk': chunk, "__mem_gb": MEMORY_IN_GB*args.num_threads, "__threads": args.num_threads}
               for chunk in args.chunks]
     return {'chunks': chunks}
 
