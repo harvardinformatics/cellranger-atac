@@ -122,6 +122,7 @@ def run_cutadapt_single_end(in_reads_fn, out_reads_fn, trim_info_fn, trim_def, a
 
     cmd.extend(["--info-file", trim_info_fn])
     cmd.extend(["--cores", str(num_threads)])
+    cmd.extend(["--compression-level", "1"])
     cmd.extend(["-o", out_reads_fn])
     cmd.append(in_reads_fn)
 
